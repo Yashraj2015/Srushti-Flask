@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<main class="flex-1 flex flex-col w-full min-h-0">
+
+  <div class="flex items-center justify-between px-2 py-2">
+    <div class="relative inline-block text-left">
+      <button id="dropdown-btn" class="appearance-none bg-transparent hover:bg-[#2A2B2D] text-white text-lg pl-3 py-1 pr-8 rounded-xl transition border-0 border-gray-700 focus:ring-0 focus:ring-indigo-500 focus:outline-none">
+        <span id="dropdown-label">ChatGPT</span>
+        <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+      </button>
+      <div id="dropdown-menu" class="hidden absolute left-0 mt-2 py-1 w-40 bg-[#141516] rounded-2xl shadow-md z-50">
+        <button class="block w-full px-1 text-left text-sm text-gray-200" data-value="moonshotai/kimi-k2:free"><div class="py-2 px-3 hover:bg-[#2A2B2D] rounded-xl">ChatGPT</div></button>
+        <button class="block w-full px-1 text-left text-sm text-gray-200" data-value="google/gemini-2.0-flash-exp:free"><div class="py-2 px-3 hover:bg-[#2A2B2D] rounded-xl">GPT 2o</div></button>
+        <button class="block w-full px-1 text-left text-sm text-gray-200" data-value="qwen/qwen3-235b-a22b:free"><div class="py-2 px-3 hover:bg-[#2A2B2D] rounded-xl">OpenAI o1</div></button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="chat-container" class="relative flex-1 overflow-y-auto custom-scrollbar px-4 min-h-0">
+    <div class="w-full max-w-3xl mx-auto flex flex-col">
+      {% if messages %}
+        {% for message in messages %}
+        {% if message.sender == 'ai' and message.reasoning %}
+        <details class="reasoning-container w-full mt-2 mb-2 px-2 text-sm font-semibold">
+          <summary class="text-white cursor-pointer hover:text-white">Show Thinking</summary>
+          <div class="reasoning-content pt-2 pl-4 text-gray-400 prose prose-sm whitespace-pre-wrap">{{ message.reasoning }}</div>
+        </details>
+      {% endif %}
+          <div class="flex w-full  mb-6  {% if message.sender == 'user' %}justify-end{% else %}justify-start{% endif %}">
+            <div class="message-block max-w-full {% if message.sender == 'user' %}self-end{% else %}self-start{% endif %}"
+                data-message-id="{{ loop.index }}"
+                {% if message.image_urls %}data-image-urls="{{ message.image_urls | tojson | e }}"{% endif %}>
+
+              
+              
+              {% if message.sender == 'user' and message.image_urls %}
+                <div class="flex flex-wrap gap-2 mb-2 justify-end">
+                  {% for image_src in message.image_urls %}
+                    <img src="{{ image_src }}" alt="Message image" class="w-28 h-28 bg-transparent rounded-2xl object-cover">
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              {% if message.content %}
+                <div class="px-4 py-2 rounded-2xl break-words message-content 
+                            {% if message.sender == 'user' %} bg-[#333537] text-white mt-2 
+                            {% else %} text-gray-200 prose prose-invert {% endif %}"
+                            data-raw="{{ message.content | e }}">
+                  {{ message.content.replace('\n', '<br>') | safe }}
+                </div>
+              {% endif %}
+              
+              {% if message.sender == 'ai' and message.sources %}
+                <div class="mt-2 px-2 text-xs text-gray-400">
+                  <div class="flex flex-wrap gap-2">
+                    {% for source in message.sources %}
+                      <a href="{{ source.url }}" target="_blank" rel="noopener noreferrer" title="{{ source.title }}" class="bg-[#333537] hover:bg-gray-600 px-2 py-1 rounded-full">
+                         {{ source.url.split('//')[1].split('/')[0] }}
+                      </a>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+      {% if not messages %}
+        <div id="empty-state" class="absolute inset-0 flex items-center justify-center text-center text-gray-400 pointer-events-none">
+          <h1 class="text-3xl font-semibold text-gray-200">{{ greeting }}</h1>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+
+  <div class="mb-auto pl-4 pb-1 pr-4">
+    <div id="image-preview" class="hidden max-w-3xl mx-auto mb-3"></div>
+    
+    <form id="chat-form" 
+      class="flex flex-col min-h-28 bg-[#252829]  rounded-[2rem]  pt-4 max-w-3xl mx-auto shadow-[#13131384] shadow-xl transition-all duration-200">
+
+  <textarea id="message-input" rows="1" placeholder="Ask Srushti"
+            class="bg-transparent text-white placeholder-gray-400 pl-4 leading-6 border-none outline-none focus:ring-0 resize-none overflow-y-auto overflow-x-hidden max-h-48"></textarea>
+
+  <div class="mt-auto flex items-center gap-2 pt-2  ">
+    <button type="button" id="image-upload-btn" title="Upload Images"
+            class="w-9 h-9 ml-3 mb-3 flex bg-[#393D3E] items-center justify-center rounded-full text-gray-400 hover:bg-gray-700 transition-colors">
+            <i class="fa-regular fa-image text-md"></i>
+    </button>
+
+    <button type="button" id="web-search-toggle" title="Force Web Search"
+        class="w-[5.4rem] h-9 flex items-center justify-center gap-2 rounded-full bg-[#393D3E] text-gray-400 hover:bg-gray-700 transition-colors mb-3">
+        <i class="fa-solid fa-earth-americas text-base leading-none"></i>
+        <span class="text-sm leading-none">Search</span>
+    </button>
+
+
+    <input type="file" id="image-upload" accept="image/*" multiple class="hidden">
+
+    <button type="submit"
+            class="bg-[#393D3E] text-white rounded-full w-9 h-9 mr-3 mb-3 flex items-center justify-center hover:bg-white hover:text-black transition duration-200 disabled:bg-indigo-400 disabled:cursor-not-allowed ml-auto">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+  </div>
+</form>
+
+
+
+
+    
+    <div class="max-w-3xl mx-auto mt-2">
+      <p class="text-xs text-gray-500 text-center">
+        AI may make mistakes. Please verify crucial info
+      </p>
+    </div>
+  </div>
+</main>
+{% endblock %}
