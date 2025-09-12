@@ -1,15 +1,24 @@
 import os
 import requests
 import json # Import the json library
+from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# openrouter_client = OpenAI(
+#   base_url="https://openrouter.ai/api/v1",
+#   api_key=os.getenv("OPENROUTER_API_KEY"),
+# )
 
 # Your API key from OpenRouter
-API_KEY = "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"
+API_KEY = "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"
 
 if not API_KEY:
     raise ValueError("❌ OPENROUTER_API_KEY is not set!")
 
 headers = {
-    "Authorization": f"Bearer {API_KEY}",
+    "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
     "Content-Type": "application/json",
 }
 
