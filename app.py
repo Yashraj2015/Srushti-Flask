@@ -446,7 +446,6 @@ def chat():
                         headers=headers,
                         json={"model": model, "messages": messages, "tools": tools_param, "stream": True},
                         stream=True,
-                        timeout=60
                     )
                     initial_response.raise_for_status()
                     
@@ -564,7 +563,6 @@ def chat():
                             "max_tokens": 2000
                         },
                         stream=True,
-                        timeout=60 
                     )
                     final_response.raise_for_status()
                     

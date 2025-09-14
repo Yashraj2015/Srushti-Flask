@@ -1,496 +1,497 @@
-<!DOCTYPE html>
-<html lang="en" class="h-full bg-[#343541]">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Class 11 Chemistry chapter 4 JEE</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0KOVEMeaOvtUHTuWJcmathrqaOsabEIFSsmXAPsflBwFSogYTMOPe" crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
-  
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<!DOCTYPE html>  
+<html lang="en" class="h-full bg-[#343541]">  
+<head>  
+  <meta charset="UTF-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
+  <title>Class 11 Chemistry chapter 4 JEE</title>  
+  <script src="https://cdn.tailwindcss.com"></script>  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">  
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">  
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
-  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-
-  <style>
-    /* Custom scrollbar */
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #141516; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #121111; border-radius: 3px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #303132; }
-    .group:hover .group-hover\:block { display: block; }
-
-    /* Chrome, Edge, Safari */
-    #message-input::-webkit-scrollbar { width: 6px; }
-    #message-input::-webkit-scrollbar-track { background: #1E2122; border-radius: 6px; }
-    #message-input::-webkit-scrollbar-thumb { background-color: #555; border-radius: 6px; }
-    #message-input::-webkit-scrollbar-thumb:hover { background-color: #777; }
-    #message-input::-webkit-scrollbar-button { display: none; height: 0; width: 0; }
-
-    body { font-family: 'Geist', sans-serif; }
-    .font-sans { font-family: 'Geist', sans-serif; }
-
-    /* Firefox */
-    #message-input { scrollbar-width: thin; scrollbar-color: #555 #1E2122; }
-
-    #sidebar { height: 100vh; max-height: 100vh; display: flex; flex-direction: column; border-right: 1px solid transparent; }
-    #sidebar nav.collapse-chats { flex: 1 1 0%; overflow-y: auto; overflow-x: hidden; min-height: 0; max-height: none; }
-    #profile-section { flex-shrink: 0; margin-top: auto; }
-
-    /* Collapsed sidebar (mini dock) */
-    .sidebar-collapsed #sidebar { width: 3.2rem; padding: 6px 4px; border-right: 0.1px solid #3d3c3c8f; background-color: #1B1C1D; }
-    .sidebar-collapsed #sidebar .collapse-hidden { display: none; }
-    .sidebar-collapsed #sidebar .collapse-chats,
-    .sidebar-collapsed #sidebar .collapse-logout { display: none !important; }
-    .sidebar-collapsed #sidebar .sidebar-spacer { display: block; flex: 1 1 auto; }
-    .sidebar-collapsed #sidebar .new-chat { padding: 0.5rem; justify-content: center; }
-    .sidebar-collapsed #sidebar .new-chat i { margin: 0; }
-    .sidebar-collapsed #sidebar .profile-row { padding: 0.375rem; justify-content: center; }
-    .sidebar-collapsed #sidebar .profile-row img { width: 1.5rem; height: 1.5rem; }
-    #model-select:hover { background-color: #353638; cursor: pointer; }
-    .sidebar-collapsed #close-sidebar-btn { display: none; }
-    .sidebar-collapsed #profile-btn { position: relative; }
-    .sidebar-collapsed #profile-btn:hover { background: #252627; }
-    .sidebar-collapsed #profile-btn:hover::after { opacity: 1; }
-
-    /* START of Reasoning details styling changes */
-    .reasoning-container summary {
-        list-style: none; /* Hide default marker */
-        display: inline-flex; /* Allow content and custom icon to align */
-        align-items: center; /* Vertically center icon with text */
-        gap: 0.5rem; /* Space between text and icon */
-        cursor: pointer;
-        color: #f9fafb; /* Make "Show Thinking" text white */
-        user-select: none; /* Prevent text selection from interfering with click */
-    }
-
-
-    .reasoning-container summary::-webkit-details-marker {
-        display: none; /* For Webkit browsers */
-    }
-
-    .reasoning-container summary::after {
-        content: '\f054'; /* FontAwesome chevron-right icon */
-        font-family: "Font Awesome 6 Free"; /* Specify FontAwesome font */
-        font-weight: 900; /* Use solid icon weight */
-        transition: transform 0.2s;
-        font-size: 0.7em; /* Adjust icon size */
-    }
-
-    .reasoning-container[open] summary::after {
-        content: '\f078'; /* FontAwesome chevron-down icon when open */
-        transform: rotate(0deg); /* No rotation needed if using down icon */
-    }
-
-    .reasoning-container[open] summary { margin-bottom: 0.5rem; }
-    /* END of Reasoning details styling changes */
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0KOVEMeaOvtUHTuWJcmathrqaOsabEIFSsmXAPsflBwFSogYTMOPe" crossorigin="anonymous">  
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>  
     
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>  
 
-    .reasoning-container .prose { white-space: pre-wrap; font-size: 0.8rem; padding: 1rem 1rem; margin-left: 15px; background-color: transparent; }
-    .sidebar-collapsed .collapse-newchat { width: 2.5rem; height: 2.5rem; padding: 0; margin-top: 3rem; justify-content: center; }
-    .sidebar-expanded #brand-toggle-wrapper { flex-direction: row; justify-content: space-between; align-items: center; }
-    .sidebar-collapsed #brand-toggle-wrapper { flex-direction: column; align-items: flex-start; justify-content: flex-start; }
-    .sidebar-collapsed #close-sidebar-btn { display: none !important; }
-    .sidebar-collapsed #open-sidebar-btn { display: flex !important; position: static !important; margin-top: 0.5rem; }
-    #sidebar-header .collapse-newchat { margin-top: 0.1rem; }
-    #sidebar-header .collapse-newchat { margin-top: 1rem !important; }
-    .sidebar-collapsed #sidebar-header .collapse-newchat { margin-top: 0rem !important; margin-left: 1px; }
-    .sidebar-collapsed #open-sidebar-btn { display: flex !important; margin-top: 1rem; }
-    #open-sidebar-btn { display: none; }
-    #chat-container { scrollbar-gutter: stable; }
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>  
+  <script src="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.js"></script>  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">  
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>  
 
-    /* ✅ ADDED: Custom styles for AI's Markdown/HTML content */
-    .message-content.prose {
-        max-width: none; /* Override prose max-width for full bubble width */
-    }
-    .message-content.prose-invert h1,
-    .message-content.prose-invert h2,
-    .message-content.prose-invert h3,
-    .message-content.prose-invert h4,
-    .message-content.prose-invert strong {
-        color: #f9fafb; /* gray-50 */
-    }
-    .message-content.prose-invert p,
-    .message-content.prose-invert li,
-    .message-content.prose-invert td {
-        color: #e7e7e7; /* gray-300 */
-    }
-    .message-content.prose-invert a {
-        color: #93c5fd; /* blue-300 */
-    }
-    .message-content.prose-invert code:not(pre code) {
-        color: #fcd34d; /* amber-300 */
-        background-color: #1f2937;
-        padding: 0.2em 0.4em;
-        margin: 0;
-        font-size: 85%;
-        border-radius: 6px;
-    }
-    .message-content.prose-invert pre {
-        background-color: #131314; /* gray-900 */
-        border-radius: 1rem;
-        color: #d1d5db; /* gray-300 */
-    }
-    .message-content.prose-invert pre code {
-        background-color: transparent;
-        padding: 0;
-        color: inherit;
-    }
-    .message-content.prose-invert table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    .message-content.prose-invert th,
-    .message-content.prose-invert td {
-        border: 1px solid #4b5563; /* gray-600 */
-        padding: 0.5rem 0.75rem;
-    }
-    .message-content.prose-invert thead {
-      border-bottom-width: 1px;
-      border-color: #4b5563;
-    }
-    .message-content.prose-invert thead th {
-        background-color: #374151; /* gray-700 */
-        font-weight: 600;
-    }
-    .message-content.prose-invert blockquote {
-        border-left-color: #6b7280; /* gray-500 */
-        color: #9ca3af; /* gray-400 */
-    }
+  <style>  
+    /* Custom scrollbar */  
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }  
+    .custom-scrollbar::-webkit-scrollbar-track { background: #141516; }  
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #121111; border-radius: 3px; }  
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #303132; }  
+    .group:hover .group-hover\:block { display: block; }  
 
-    .reasoning-container[open] > summary {
-        background-color: #2A2B2D;
-    }
+    /* Chrome, Edge, Safari */  
+    #message-input::-webkit-scrollbar { width: 6px; }  
+    #message-input::-webkit-scrollbar-track { background: #1E2122; border-radius: 6px; }  
+    #message-input::-webkit-scrollbar-thumb { background-color: #555; border-radius: 6px; }  
+    #message-input::-webkit-scrollbar-thumb:hover { background-color: #777; }  
+    #message-input::-webkit-scrollbar-button { display: none; height: 0; width: 0; }  
 
-    /* Override prose max-width for reasoning content to allow it to fill the container */
-    .reasoning-content.prose {
-        max-width: none;
-    }
+    body { font-family: 'Geist', sans-serif; }  
+    .font-sans { font-family: 'Geist', sans-serif; }  
 
-    /* --- START: ADDED/MODIFIED --- */
-    /* Mobile-specific sidebar behavior */
-    @media (max-width: 767px) {
-        /* When sidebar is open on mobile, ensure it starts onscreen */
-        #sidebar {
-            transform: translateX(0);
-        }
+    /* Firefox */  
+    #message-input { scrollbar-width: thin; scrollbar-color: #555 #1E2122; }  
 
-        /* When "collapsed" on mobile, slide it completely out of view */
-        .sidebar-collapsed #sidebar {
-            transform: translateX(-100%);
-            /* Reset PC collapsed styles that are not needed */
-            width: 16rem; /* w-64 */
-            padding: 0.5rem;
-            border-right: none;
-        }
+    #sidebar { height: 100vh; max-height: 100vh; display: flex; flex-direction: column; border-right: 1px solid transparent; }  
+    #sidebar nav.collapse-chats { flex: 1 1 0%; overflow-y: auto; overflow-x: hidden; min-height: 0; max-height: none; }  
+    #profile-section { flex-shrink: 0; margin-top: auto; }  
 
-        /* Ensure the button inside the sidebar to open it is hidden on mobile */
-        .sidebar-collapsed #open-sidebar-btn {
-            display: none !important;
-        }
-    }
-    /* --- END: ADDED/MODIFIED --- */
-  </style>
-</head>
-<body class="h-full text-gray-200 font-sans {{ page_class }}">
-  <script>
-    // This script runs instantly, before the page is rendered.
-    (function() {
-      const savedState = localStorage.getItem('sidebarState');
-      if (savedState === 'closed') {
-        document.body.classList.add('sidebar-collapsed');
-      }
-    })();
-  </script>
-  <div class="flex h-screen overflow-hidden bg-[#1B1C1D] ">
-    <aside id="sidebar"
-      class="bg-[#141516] text-gray-100 w-64 md:w-64 pt-2 pb-2 px-2
-             absolute md:relative inset-y-0 left-0 transform transition-all duration-300 ease-in-out
-             z-40 flex flex-col min-h-0 overflow-hidden">
+    /* Collapsed sidebar (mini dock) */  
+    .sidebar-collapsed #sidebar { width: 3.2rem; padding: 6px 4px; border-right: 0.1px solid #3d3c3c8f; background-color: #1B1C1D; }  
+    .sidebar-collapsed #sidebar .collapse-hidden { display: none; }  
+    .sidebar-collapsed #sidebar .collapse-chats,  
+    .sidebar-collapsed #sidebar .collapse-logout { display: none !important; }  
+    .sidebar-collapsed #sidebar .sidebar-spacer { display: block; flex: 1 1 auto; }  
+    .sidebar-collapsed #sidebar .new-chat { padding: 0.5rem; justify-content: center; }  
+    .sidebar-collapsed #sidebar .new-chat i { margin: 0; }  
+    .sidebar-collapsed #sidebar .profile-row { padding: 0.375rem; justify-content: center; }  
+    .sidebar-collapsed #sidebar .profile-row img { width: 1.5rem; height: 1.5rem; }  
+    #model-select:hover { background-color: #353638; cursor: pointer; }  
+    .sidebar-collapsed #close-sidebar-btn { display: none; }  
+    .sidebar-collapsed #profile-btn { position: relative; }  
+    .sidebar-collapsed #profile-btn:hover { background: #252627; }  
+    .sidebar-collapsed #profile-btn:hover::after { opacity: 1; }  
 
-      <div id="sidebar-header" class="flex flex-col items-stretch mb-2 flex-shrink-0">
+    /* START of Reasoning details styling changes */  
+    .reasoning-container summary {  
+        list-style: none; /* Hide default marker */  
+        display: inline-flex; /* Allow content and custom icon to align */  
+        align-items: center; /* Vertically center icon with text */  
+        gap: 0.5rem; /* Space between text and icon */  
+        cursor: pointer;  
+        color: #f9fafb; /* Make "Show Thinking" text white */  
+        user-select: none; /* Prevent text selection from interfering with click */  
+    }  
 
-        <div id="brand-toggle-wrapper"
-             class="flex items-center justify-between w-full transition-all duration-300">
 
-          <div class="flex items-center justify-center w-10 h-10">
-            <img src="{{ url_for('static', filename='img/logo.png') }}" 
-                 alt="Brand Logo" class="w-7 h-7">
-          </div>
+    .reasoning-container summary::-webkit-details-marker {  
+        display: none; /* For Webkit browsers */  
+    }  
 
-          <button id="close-sidebar-btn"
-                  class="text-gray-400 hover:text-white hover:bg-[#252627] w-10 h-10 
-                         flex items-center justify-center rounded-xl">
-            <i class="fas fa-bars text-lg"></i>
-          </button>
-          <button id="open-sidebar-btn" 
-                  class="hidden text-gray-300 hover:text-white w-10 h-10 
-                         flex items-center justify-center rounded-xl hover:bg-[#252627] mt-2">
-            <i class="fas fa-bars text-lg"></i>
-          </button>
-        </div>
+    .reasoning-container summary::after {  
+        content: '\f054'; /* FontAwesome chevron-right icon */  
+        font-family: "Font Awesome 6 Free"; /* Specify FontAwesome font */  
+        font-weight: 900; /* Use solid icon weight */  
+        transition: transform 0.2s;  
+        font-size: 0.7em; /* Adjust icon size */  
+    }  
 
-        <div class="mt-3 space-y-1">
-          <a href="{{ url_for('index') }}"
-             class="flex items-center py-[0.40rem] px-3 rounded-xl text-sm 
-                    hover:bg-[#252627] text-white collapse-action-btn">
-            <i class="fa-regular fa-pen-to-square text-base py-1"></i>
-            <span class="ml-3 mb-[2px] collapse-hidden
-                         transition-all duration-300 ease-in-out 
-                         overflow-hidden whitespace-nowrap
-                         opacity-100 max-w-xs">
-              New chat
-            </span>
-          </a>
-          <button id="open-search-btn"
-             class="flex items-center w-full py-[0.40rem] px-3 rounded-xl text-sm 
-                    hover:bg-[#252627] text-white collapse-action-btn">
-              <i class="fa-solid fa-search text-base py-1"></i>
-              <span class="ml-3 mb-[2px] collapse-hidden
-                           transition-all duration-300 ease-in-out 
-                           overflow-hidden whitespace-nowrap
-                           opacity-100 max-w-xs">
-                Search chats
-              </span>
-          </button>
-          </div>
-      </div>
+    .reasoning-container[open] summary::after {  
+        content: '\f078'; /* FontAwesome chevron-down icon when open */  
+        transform: rotate(0deg); /* No rotation needed if using down icon */  
+    }  
 
-      <span class="collapse-hidden px-[0.60rem] mt-4 mb-2 text-xs font-awesome text-gray-400 tracking-wider" >Chats</span>
-      <nav class="collapse-chats flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar min-h-0 pb-2 ">
-        
-        {% for conv in conversations %}
-        <a href="{{ url_for('load_conversation', conversation_id=conv.id) }}"
-           class="block py-2 px-3 rounded-xl transition duration-200 hover:bg-[#252627] 
-                  {% if conv.id == active_conversation_id %} bg-[#1B1C1D] {% endif %} truncate text-sm mb-1 mr-2">
-          <span class="collapse-hidden">{{ conv.title }}</span>
-        </a>
-        {% endfor %}
-      </nav>
+    .reasoning-container[open] summary { margin-bottom: 0.5rem; }  
+    /* END of Reasoning details styling changes */  
 
-      <div class="sidebar-spacer hidden"></div>
-
-      <div id="profile-section" class="relative profile-collapsible flex-shrink-0 mt-2">
-        <button id="profile-btn" 
-                data-username="{{ user.name }}"
-                class="flex items-center p-2 space-x-3 w-full text-left hover:bg-[#1B1C1D] rounded-xl">
-          <img src="{{ user.picture }}" alt="User Avatar" class="w-6 h-6 rounded-full">
-          <h3 class="font-semibold text-sm truncate collapse-hidden">{{ user.name }}</h3>
-        </button>
       
-        <a id="logout-btn" href="{{ url_for('logout') }}" 
-           class="hidden absolute bottom-full mb-2 w-full rounded-xl bg-[#1B1C1D] p-1 text-sm text-left shadow-lg">
-            <div class="bg-transparent hover:bg-[#2A2B2D] rounded-lg py-2 px-3">
-             <i class="fas fa-sign-out-alt mr-2"></i> <span class="collapse-hidden">Logout</span>
-            </div>
-        </a>
-      </div>
-    </aside>
 
-    <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden"></div>
-    <div id="main-content" class="flex-1 flex flex-col relative transition-all duration-300 ease-in-out overflow-hidden">
-      
-      <button id="mobile-open-sidebar-btn" class="md:hidden absolute top-2 left-2 z-20 text-gray-300 hover:text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-700/50">
-        <i class="fas fa-bars text-xl"></i>
-      </button>
-      <div id="search-panel" class="hidden absolute inset-0 z-50 flex justify-center items-start pt-20 px-4 bg-black bg-opacity-70 backdrop-blur-sm">
-        <div class="bg-[#1B1C1D] border border-gray-700 rounded-[2.2rem] w-full max-w-2xl p-4 shadow-xl flex flex-col">
-          <div class="flex items-center justify-between mb-4">
-            </div>
-          <div class="relative flex flex-row align-items">
-            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="search-input" placeholder="Search chats"
-                   class="w-full bg-[#252829] text-gray-200 rounded-full py-2.5 pl-12 pr-4 border border-transparent focus:ring-1 focus:ring-slate-500 focus:border-slate-500 outline-none transition">
-                   <button id="close-search-btn" class="text-gray-400 hover:text-white w-8 h-8 flex items-center justify-center absolute right-2 top-1/2 -translate-y-1/2 rounded-full hover:bg-[#2A2B2D]">
-                     <i class="fas fa-times"></i>
-                   </button>
-          </div>
+    .reasoning-container .prose { white-space: pre-wrap; font-size: 0.8rem; padding: 1rem 1rem; margin-left: 15px; background-color: transparent; }  
+    .sidebar-collapsed .collapse-newchat { width: 2.5rem; height: 2.5rem; padding: 0; margin-top: 3rem; justify-content: center; }  
+    .sidebar-expanded #brand-toggle-wrapper { flex-direction: row; justify-content: space-between; align-items: center; }  
+    .sidebar-collapsed #brand-toggle-wrapper { flex-direction: column; align-items: flex-start; justify-content: flex-start; }  
+    .sidebar-collapsed #close-sidebar-btn { display: none !important; }  
+    .sidebar-collapsed #open-sidebar-btn { display: flex !important; position: static !important; margin-top: 0.5rem; }  
+    #sidebar-header .collapse-newchat { margin-top: 0.1rem; }  
+    #sidebar-header .collapse-newchat { margin-top: 1rem !important; }  
+    .sidebar-collapsed #sidebar-header .collapse-newchat { margin-top: 0rem !important; margin-left: 1px; }  
+    .sidebar-collapsed #open-sidebar-btn { display: flex !important; margin-top: 1rem; }  
+    #open-sidebar-btn { display: none; }  
+    #chat-container { scrollbar-gutter: stable; }  
+
+    /* ✅ ADDED: Custom styles for AI's Markdown/HTML content */  
+    .message-content.prose {  
+        max-width: none; /* Override prose max-width for full bubble width */  
+    }  
+    .message-content.prose-invert h1,  
+    .message-content.prose-invert h2,  
+    .message-content.prose-invert h3,  
+    .message-content.prose-invert h4,  
+    .message-content.prose-invert strong {  
+        color: #f9fafb; /* gray-50 */  
+    }  
+    .message-content.prose-invert p,  
+    .message-content.prose-invert li,  
+    .message-content.prose-invert td {  
+        color: #e7e7e7; /* gray-300 */  
+    }  
+    .message-content.prose-invert a {  
+        color: #93c5fd; /* blue-300 */  
+    }  
+    .message-content.prose-invert code:not(pre code) {  
+        color: #fcd34d; /* amber-300 */  
+        background-color: #1f2937;  
+        padding: 0.2em 0.4em;  
+        margin: 0;  
+        font-size: 85%;  
+        border-radius: 6px;  
+    }  
+    .message-content.prose-invert pre {  
+        background-color: #131314; /* gray-900 */  
+        border-radius: 1rem;  
+        color: #d1d5db; /* gray-300 */  
+    }  
+    .message-content.prose-invert pre code {  
+        background-color: transparent;  
+        padding: 0;  
+        color: inherit;  
+    }  
+    .message-content.prose-invert table {  
+        width: 100%;  
+        border-collapse: collapse;  
+    }  
+    .message-content.prose-invert th,  
+    .message-content.prose-invert td {  
+        border: 1px solid #4b5563; /* gray-600 */  
+        padding: 0.5rem 0.75rem;  
+    }  
+    .message-content.prose-invert thead {  
+      border-bottom-width: 1px;  
+      border-color: #4b5563;  
+    }  
+    .message-content.prose-invert thead th {  
+        background-color: #374151; /* gray-700 */  
+        font-weight: 600;  
+    }  
+    .message-content.prose-invert blockquote {  
+        border-left-color: #6b7280; /* gray-500 */  
+        color: #9ca3af; /* gray-400 */  
+    }  
+
+    .reasoning-container[open] > summary {  
+        background-color: #2A2B2D;  
+    }  
+
+    /* Override prose max-width for reasoning content to allow it to fill the container */  
+    .reasoning-content.prose {  
+        max-width: none;  
+    }  
+
+    /* --- START: ADDED/MODIFIED --- */  
+    /* Mobile-specific sidebar behavior */  
+    @media (max-width: 767px) {  
+        /* When sidebar is open on mobile, ensure it starts onscreen */  
+        #sidebar {  
+            transform: translateX(0);  
+        }  
+
+        /* When "collapsed" on mobile, slide it completely out of view */  
+        .sidebar-collapsed #sidebar {  
+            transform: translateX(-100%);  
+            /* Reset PC collapsed styles that are not needed */  
+            width: 16rem; /* w-64 */  
+            padding: 0.5rem;  
+            border-right: none;  
+        }  
+
+        /* Ensure the button inside the sidebar to open it is hidden on mobile */  
+        .sidebar-collapsed #open-sidebar-btn {  
+            display: none !important;  
+        }  
+    }  
+    /* --- END: ADDED/MODIFIED --- */  
+  </style>  
+</head>  
+<body class="h-full text-gray-200 font-sans {{ page_class }}">  
+  <script>  
+    // This script runs instantly, before the page is rendered.  
+    (function() {  
+      const savedState = localStorage.getItem('sidebarState');  
+      if (savedState === 'closed') {  
+        document.body.classList.add('sidebar-collapsed');  
+      }  
+    })();  
+  </script>  
+  <div class="flex h-screen overflow-hidden bg-[#1B1C1D] ">  
+    <aside id="sidebar"  
+      class="bg-[#141516] text-gray-100 w-64 md:w-64 pt-2 pb-2 px-2  
+             absolute md:relative inset-y-0 left-0 transform transition-all duration-300 ease-in-out  
+             z-40 flex flex-col min-h-0 overflow-hidden">  
+
+      <div id="sidebar-header" class="flex flex-col items-stretch mb-2 flex-shrink-0">  
+
+        <div id="brand-toggle-wrapper"  
+             class="flex items-center justify-between w-full transition-all duration-300">  
+
+          <div class="flex items-center justify-center w-10 h-10">  
+            <img src="{{ url_for('static', filename='img/logo.png') }}"   
+                 alt="Brand Logo" class="w-7 h-7">  
+          </div>  
+
+          <button id="close-sidebar-btn"  
+                  class="text-gray-400 hover:text-white hover:bg-[#252627] w-10 h-10   
+                         flex items-center justify-center rounded-xl">  
+            <i class="fas fa-bars text-lg"></i>  
+          </button>  
+          <button id="open-sidebar-btn"   
+                  class="hidden text-gray-300 hover:text-white w-10 h-10   
+                         flex items-center justify-center rounded-xl hover:bg-[#252627] mt-2">  
+            <i class="fas fa-bars text-lg"></i>  
+          </button>  
+        </div>  
+
+        <div class="mt-3 space-y-1">  
+          <a href="{{ url_for('index') }}"  
+             class="flex items-center py-[0.40rem] px-3 rounded-xl text-sm   
+                    hover:bg-[#252627] text-white collapse-action-btn">  
+            <i class="fa-regular fa-pen-to-square text-base py-1"></i>  
+            <span class="ml-3 mb-[2px] collapse-hidden  
+                         transition-all duration-300 ease-in-out   
+                         overflow-hidden whitespace-nowrap  
+                         opacity-100 max-w-xs">  
+              New chat  
+            </span>  
+          </a>  
+          <button id="open-search-btn"  
+             class="flex items-center w-full py-[0.40rem] px-3 rounded-xl text-sm   
+                    hover:bg-[#252627] text-white collapse-action-btn">  
+              <i class="fa-solid fa-search text-base py-1"></i>  
+              <span class="ml-3 mb-[2px] collapse-hidden  
+                           transition-all duration-300 ease-in-out   
+                           overflow-hidden whitespace-nowrap  
+                           opacity-100 max-w-xs">  
+                Search chats  
+              </span>  
+          </button>  
+          </div>  
+      </div>  
+
+      <span class="collapse-hidden px-[0.60rem] mt-4 mb-2 text-xs font-awesome text-gray-400 tracking-wider" >Chats</span>  
+      <nav class="collapse-chats flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar min-h-0 pb-2 ">  
           
-          <div id="search-results" class="mt-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-1">
-            </div>
-        </div>
-      </div>
-      {% block content %}{% endblock %}
-    </div>
-  </div>
+        {% for conv in conversations %}  
+        <a href="{{ url_for('load_conversation', conversation_id=conv.id) }}"  
+           class="block py-2 px-3 rounded-xl transition duration-200 hover:bg-[#252627]   
+                  {% if conv.id == active_conversation_id %} bg-[#1B1C1D] {% endif %} truncate text-sm mb-1 mr-2">  
+          <span class="collapse-hidden">{{ conv.title }}</span>  
+        </a>  
+        {% endfor %}  
+      </nav>  
 
-  <script>
-    // Make conversations data available to the client-side script
-    const conversations = {{ conversations | tojson | safe }};
-  </script>
+      <div class="sidebar-spacer hidden"></div>  
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const body = document.body;
-      const sidebarStateKey = 'sidebarState';
-      
-      // --- START: ADDED/MODIFIED ---
-      // Sidebar buttons
-      const closeBtn = document.getElementById('close-sidebar-btn'); // Button inside sidebar
-      const openBtnDesktop = document.getElementById('open-sidebar-btn'); // Button for desktop collapsed view
-      const openBtnMobile = document.getElementById('mobile-open-sidebar-btn'); // Hamburger for mobile
-      const overlay = document.getElementById('mobile-sidebar-overlay');
-
-      const isMobile = () => window.innerWidth < 768;
-
-      const openSidebar = () => {
-          body.classList.remove('sidebar-collapsed');
-          localStorage.setItem(sidebarStateKey, 'open');
-          if (isMobile()) {
-              overlay.classList.remove('hidden');
-          }
-      };
-
-      const closeSidebar = () => {
-          body.classList.add('sidebar-collapsed');
-          localStorage.setItem(sidebarStateKey, 'closed');
-          if (isMobile()) {
-              overlay.classList.add('hidden');
-          }
-      };
-
-      // Set initial overlay state on page load
-      const setInitialState = () => {
-        if (isMobile()) {
-          if (!body.classList.contains('sidebar-collapsed')) {
-            overlay.classList.remove('hidden'); // Show overlay if sidebar is open on mobile
-          }
-        } else {
-          overlay.classList.add('hidden'); // Always hide overlay on desktop
-        }
-      };
-
-      // Assign event listeners
-      closeBtn.addEventListener('click', closeSidebar);
-      openBtnDesktop.addEventListener('click', openSidebar);
-      openBtnMobile.addEventListener('click', openSidebar);
-      overlay.addEventListener('click', closeSidebar);
-
-      // Handle window resizing
-      window.addEventListener('resize', () => {
-          // If resizing to desktop view, ensure the overlay is hidden
-          if (!isMobile()) {
-              overlay.classList.add('hidden');
-          }
-      });
-      
-      setInitialState();
-      // --- END: ADDED/MODIFIED ---
-
-      // --- START: Search Feature Logic ---
-      const openSearchBtn = document.getElementById('open-search-btn');
-      const closeSearchBtn = document.getElementById('close-search-btn');
-      const searchPanel = document.getElementById('search-panel');
-      const searchInput = document.getElementById('search-input');
-      const searchResultsContainer = document.getElementById('search-results');
-
-      const openPanel = () => {
-        searchPanel.classList.remove('hidden');
-        searchInput.focus();
-      };
-
-      const closePanel = () => {
-        searchPanel.classList.add('hidden');
-        searchInput.value = '';
-        searchResultsContainer.innerHTML = '';
-      };
-
-      const renderSearchResults = (results) => {
-        if (results.length === 0) {
-            searchResultsContainer.innerHTML = '<p class="text-gray-400 text-center p-4">No results found.</p>';
-            return;
-        }
+      <div id="profile-section" class="relative profile-collapsible flex-shrink-0 mt-2">  
+        <button id="profile-btn"   
+                data-username="{{ user.name }}"  
+                class="flex items-center p-2 space-x-3 w-full text-left hover:bg-[#1B1C1D] rounded-xl">  
+          <img src="{{ user.picture }}" alt="User Avatar" class="w-6 h-6 rounded-full">  
+          <h3 class="font-semibold text-sm truncate collapse-hidden">{{ user.name }}</h3>  
+        </button>  
         
-        const resultsHtml = results.map(conv => `
-            <a href="/conversation/${conv.id}" class="block p-3 rounded-lg hover:bg-[#2A2B2D] transition-colors mb-1">
-                <p class="font-semibold truncate text-gray-200">${conv.title}</p>
-            </a>
-        `).join('');
-        searchResultsContainer.innerHTML = resultsHtml;
-      };
+        <a id="logout-btn" href="{{ url_for('logout') }}"   
+           class="hidden absolute bottom-full mb-2 w-full rounded-xl bg-[#1B1C1D] p-1 text-sm text-left shadow-lg">  
+            <div class="bg-transparent hover:bg-[#2A2B2D] rounded-lg py-2 px-3">  
+             <i class="fas fa-sign-out-alt mr-2"></i> <span class="collapse-hidden">Logout</span>  
+            </div>  
+        </a>  
+      </div>  
+    </aside>  
 
-      openSearchBtn.addEventListener('click', openPanel);
-      closeSearchBtn.addEventListener('click', closePanel);
+    <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden"></div>  
+    <div id="main-content" class="flex-1 flex flex-col relative transition-all duration-300 ease-in-out overflow-hidden">  
+        
+      <button id="mobile-open-sidebar-btn" class="md:hidden absolute top-2 left-2 z-20 text-gray-300 hover:text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-700/50">  
+        <i class="fas fa-bars text-xl"></i>  
+      </button>  
+      <div id="search-panel" class="hidden absolute inset-0 z-50 flex justify-center items-start pt-20 px-4 bg-black bg-opacity-70 backdrop-blur-sm">  
+        <div class="bg-[#1B1C1D] border border-gray-700 rounded-[2.2rem] w-full max-w-2xl p-4 shadow-xl flex flex-col">  
+          <div class="flex items-center justify-between mb-4">  
+            </div>  
+          <div class="relative flex flex-row align-items">  
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>  
+            <input type="text" id="search-input" placeholder="Search chats"  
+                   class="w-full bg-[#252829] text-gray-200 rounded-full py-2.5 pl-12 pr-4 border border-transparent focus:ring-1 focus:ring-slate-500 focus:border-slate-500 outline-none transition">  
+                   <button id="close-search-btn" class="text-gray-400 hover:text-white w-8 h-8 flex items-center justify-center absolute right-2 top-1/2 -translate-y-1/2 rounded-full hover:bg-[#2A2B2D]">  
+                     <i class="fas fa-times"></i>  
+                   </button>  
+          </div>  
+            
+          <div id="search-results" class="mt-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-1">  
+            </div>  
+        </div>  
+      </div>  
+      {% block content %}{% endblock %}  
+    </div>  
+  </div>  
 
-      // Close panel by clicking on the background overlay
-      searchPanel.addEventListener('click', (e) => {
-        if (e.target === searchPanel) {
-          closePanel();
-        }
-      });
-      
-      // Close panel with Escape key
-      document.addEventListener('keydown', (e) => {
-        if (e.key === "Escape" && !searchPanel.classList.contains('hidden')) {
-            closePanel();
-        }
-      });
+  <script>  
+    // Make conversations data available to the client-side script  
+    const conversations = {{ conversations | tojson | safe }};  
+  </script>  
 
-      searchInput.addEventListener('input', () => {
-        const query = searchInput.value.toLowerCase().trim();
-        if (query.length < 1) {
-            searchResultsContainer.innerHTML = '';
-            return;
-        }
+  <script>  
+    document.addEventListener('DOMContentLoaded', () => {  
+      const body = document.body;  
+      const sidebarStateKey = 'sidebarState';  
+        
+      // --- START: ADDED/MODIFIED ---  
+      // Sidebar buttons  
+      const closeBtn = document.getElementById('close-sidebar-btn'); // Button inside sidebar  
+      const openBtnDesktop = document.getElementById('open-sidebar-btn'); // Button for desktop collapsed view  
+      const openBtnMobile = document.getElementById('mobile-open-sidebar-btn'); // Hamburger for mobile  
+      const overlay = document.getElementById('mobile-sidebar-overlay');  
 
-        const filteredConversations = conversations.filter(conv => 
-            conv.title.toLowerCase().includes(query)
-        );
+      const isMobile = () => window.innerWidth < 768;  
 
-        renderSearchResults(filteredConversations);
-      });
-      // --- END: Search Feature Logic ---
+      const openSidebar = () => {  
+          body.classList.remove('sidebar-collapsed');  
+          localStorage.setItem(sidebarStateKey, 'open');  
+          if (isMobile()) {  
+              overlay.classList.remove('hidden');  
+          }  
+      };  
 
-      document.addEventListener('click', function(event) {
-          // --- Logic to TOGGLE a specific sources button ---
-          const toggleBtn = event.target.closest('.toggle-sources-btn');
-          if (toggleBtn) {
-              // Find the sources container that is the button's next sibling
-              const sourcesContainer = toggleBtn.nextElementSibling;
-              if (sourcesContainer && sourcesContainer.classList.contains('sources-container')) {
-                  // Toggle the visibility of this specific container
-                  sourcesContainer.classList.toggle('hidden');
-              }
-              return; // Exit the function after handling the toggle
-          }
+      const closeSidebar = () => {  
+          body.classList.add('sidebar-collapsed');  
+          localStorage.setItem(sidebarStateKey, 'closed');  
+          if (isMobile()) {  
+              overlay.classList.add('hidden');  
+          }  
+      };  
 
-          // --- Logic to CLOSE any open sources when clicking elsewhere ---
-          // Find all currently visible source containers
-          const allVisibleSources = document.querySelectorAll('.sources-container:not(.hidden)');
+      // Set initial overlay state on page load  
+      const setInitialState = () => {  
+        if (isMobile()) {  
+          if (!body.classList.contains('sidebar-collapsed')) {  
+            overlay.classList.remove('hidden'); // Show overlay if sidebar is open on mobile  
+          }  
+        } else {  
+          overlay.classList.add('hidden'); // Always hide overlay on desktop  
+        }  
+      };  
 
-          // If the click was NOT inside a sources container, hide all of them.
-          if (!event.target.closest('.sources-container')) {
-              allVisibleSources.forEach(container => {
-                  container.classList.add('hidden');
-              });
-          }
-      });
+      // Assign event listeners  
+      closeBtn.addEventListener('click', closeSidebar);  
+      openBtnDesktop.addEventListener('click', openSidebar);  
+      openBtnMobile.addEventListener('click', openSidebar);  
+      overlay.addEventListener('click', closeSidebar);  
 
-      // --- Logic for rendering Markdown and LaTeX ---
-      document.querySelectorAll(".message-content").forEach(el => {
-        const raw = el.dataset.raw;
-        if (raw) {
-          el.innerHTML = marked.parse(raw);
-          renderMathInElement(el, {
-            delimiters: [
-              { left: "$$", right: "$$", display: true },
-              { left: "$", right: "$", display: false }
-            ]
-          });
-        }
-      });
-      
-      
-    });
-  </script>
+      // Handle window resizing  
+      window.addEventListener('resize', () => {  
+          // If resizing to desktop view, ensure the overlay is hidden  
+          if (!isMobile()) {  
+              overlay.classList.add('hidden');  
+          }  
+      });  
+        
+      setInitialState();  
+      // --- END: ADDED/MODIFIED ---  
 
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-</body>
+      // --- START: Search Feature Logic ---  
+      const openSearchBtn = document.getElementById('open-search-btn');  
+      const closeSearchBtn = document.getElementById('close-search-btn');  
+      const searchPanel = document.getElementById('search-panel');  
+      const searchInput = document.getElementById('search-input');  
+      const searchResultsContainer = document.getElementById('search-results');  
+
+      const openPanel = () => {  
+        searchPanel.classList.remove('hidden');  
+        searchInput.focus();  
+      };  
+
+      const closePanel = () => {  
+        searchPanel.classList.add('hidden');  
+        searchInput.value = '';  
+        searchResultsContainer.innerHTML = '';  
+      };  
+
+      const renderSearchResults = (results) => {  
+        if (results.length === 0) {  
+            searchResultsContainer.innerHTML = '<p class="text-gray-400 text-center p-4">No results found.</p>';  
+            return;  
+        }  
+          
+        const resultsHtml = results.map(conv => `  
+            <a href="/conversation/${conv.id}" class="block p-3 rounded-lg hover:bg-[#2A2B2D] transition-colors mb-1">  
+                <p class="font-semibold truncate text-gray-200">${conv.title}</p>  
+            </a>  
+        `).join('');  
+        searchResultsContainer.innerHTML = resultsHtml;  
+      };  
+
+      openSearchBtn.addEventListener('click', openPanel);  
+      closeSearchBtn.addEventListener('click', closePanel);  
+
+      // Close panel by clicking on the background overlay  
+      searchPanel.addEventListener('click', (e) => {  
+        if (e.target === searchPanel) {  
+          closePanel();  
+        }  
+      });  
+        
+      // Close panel with Escape key  
+      document.addEventListener('keydown', (e) => {  
+        if (e.key === "Escape" && !searchPanel.classList.contains('hidden')) {  
+            closePanel();  
+        }  
+      });  
+
+      searchInput.addEventListener('input', () => {  
+        const query = searchInput.value.toLowerCase().trim();  
+        if (query.length < 1) {  
+            searchResultsContainer.innerHTML = '';  
+            return;  
+        }  
+
+        const filteredConversations = conversations.filter(conv =>   
+            conv.title.toLowerCase().includes(query)  
+        );  
+
+        renderSearchResults(filteredConversations);  
+      });  
+      // --- END: Search Feature Logic ---  
+
+      document.addEventListener('click', function(event) {  
+          // --- Logic to TOGGLE a specific sources button ---  
+          const toggleBtn = event.target.closest('.toggle-sources-btn');  
+          if (toggleBtn) {  
+              // Find the sources container that is the button's next sibling  
+              const sourcesContainer = toggleBtn.nextElementSibling;  
+              if (sourcesContainer && sourcesContainer.classList.contains('sources-container')) {  
+                  // Toggle the visibility of this specific container  
+                  sourcesContainer.classList.toggle('hidden');  
+              }  
+              return; // Exit the function after handling the toggle  
+          }  
+
+          // --- Logic to CLOSE any open sources when clicking elsewhere ---  
+          // Find all currently visible source containers  
+          const allVisibleSources = document.querySelectorAll('.sources-container:not(.hidden)');  
+
+          // If the click was NOT inside a sources container, hide all of them.  
+          if (!event.target.closest('.sources-container')) {  
+              allVisibleSources.forEach(container => {  
+                  container.classList.add('hidden');  
+              });  
+          }  
+      });  
+
+      // --- Logic for rendering Markdown and LaTeX ---  
+      document.querySelectorAll(".message-content").forEach(el => {  
+        const raw = el.dataset.raw;  
+        if (raw) {  
+          el.innerHTML = marked.parse(raw);  
+          renderMathInElement(el, {  
+            delimiters: [  
+              { left: "$$", right: "$$", display: true },  
+              { left: "$", right: "$", display: false }  
+            ]  
+          });  
+        }  
+      });  
+        
+        
+    });  
+  </script>  
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>  
+</body>  
 </html>
