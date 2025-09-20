@@ -11,11 +11,6 @@ load_dotenv()
 #   api_key=os.getenv("OPENROUTER_API_KEY"),
 # )
 
-# Your API key from OpenRouter
-API_KEY = "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"
-
-if not API_KEY:
-    raise ValueError("❌ OPENROUTER_API_KEY is not set!")
 
 headers = {
     "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
@@ -26,7 +21,7 @@ headers = {
 user_prompt = "hi"
 
 payload = {
-    "model": "qwen/qwen3-235b-a22b:free",
+    "model": "deepseek/deepseek-chat-v3.1:free",
     "messages": [{"role": "user", "content": user_prompt}],
 }
 

@@ -138,6 +138,7 @@
         background-color: #131314; /* gray-900 */  
         border-radius: 1rem;  
         color: #d1d5db; /* gray-300 */  
+        
     }  
     .message-content.prose-invert pre code {  
         background-color: transparent;  
@@ -197,6 +198,26 @@
             display: none !important;  
         }  
     }  
+
+    #main-content-area {
+        transition: margin-right 0.3s ease-in-out, width 0.3s ease-in-out;
+        width: 100%; /* Explicitly set initial width */
+    }
+
+    /* This class will be added by JS to shift the chat left */
+    @media (min-width: 1024px) { /* For large screens */
+        #main-content-area.panel-open {
+           /* Reduce width and use margin-right: auto to prevent overflow issues */
+           width: calc(100% - 33.333333%);
+           margin-right: 33.333333%;
+        }
+    }
+    @media (min-width: 768px) and (max-width: 1023px) { /* For medium screens */
+         #main-content-area.panel-open {
+            width: calc(100% - 50%);
+            margin-right: 50%;
+        }
+    }
     /* --- END: ADDED/MODIFIED --- */  
   </style>  
 </head>  
@@ -264,13 +285,13 @@
           </div>  
       </div>  
 
-      <span class="collapse-hidden px-[0.60rem] mt-4 mb-2 text-xs font-awesome text-gray-400 tracking-wider" >Chats</span>  
+      <!-- <span class="collapse-hidden px-[0.60rem] mt-4 mb-2 text-xs font-awesome text-gray-400 tracking-wider" >Chats</span>   -->
       <nav class="collapse-chats flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar min-h-0 pb-2 ">  
           
         {% for conv in conversations %}  
         <a href="{{ url_for('load_conversation', conversation_id=conv.id) }}"  
-           class="block py-2 px-3 rounded-xl transition duration-200 hover:bg-[#252627]   
-                  {% if conv.id == active_conversation_id %} bg-[#1B1C1D] {% endif %} truncate text-sm mb-1 mr-2">  
+           class="block py-2 px-3 rounded-xl transition duration-200 hover:bg-[#1B1C1D]   
+                  {% if conv.id == active_conversation_id %} bg-[#252627] {% endif %} truncate text-sm mb-1 mr-2">  
           <span class="collapse-hidden">{{ conv.title }}</span>  
         </a>  
         {% endfor %}  

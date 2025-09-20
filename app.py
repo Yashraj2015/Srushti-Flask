@@ -39,7 +39,7 @@ groq_client = Groq(
 # ----------------------------------------
 
 # --- Supabase & OAuth Initialization ---
-supabase_url = os.getenv("SUPABASE_URL")
+supabase_url: str | None = os.getenv("SUPABASE_URL")
 supabase_key = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(supabase_url, supabase_key)
 oauth = OAuth(app)
@@ -65,16 +65,18 @@ def get_greeting(user_session):
     first_name = user_session.get('name', 'User').split(' ')[0]
     if not first_name:
         first_name = "User"
-        
+
     current_hour = datetime.now().hour
-    
+
     if 5 <= current_hour < 12:
         greeting_time = "Good morning"
+
     elif 12 <= current_hour < 17:
         greeting_time = "Good afternoon"
+
     else:
         greeting_time = "Good evening"
-        
+
     return f"{greeting_time}, {first_name}"
 
 
@@ -82,6 +84,7 @@ def get_greeting(user_session):
 def login():
     if 'user' in session:
         return redirect(url_for('index'))
+
     return render_template('login.html')
 
 
@@ -90,26 +93,34 @@ def auth_google():
     redirect_uri = url_for('auth_google_callback', _external=True)
     return google.authorize_redirect(redirect_uri)
 
+
 @app.route('/auth/google/callback')
 def auth_google_callback():
     try:
         token = google.authorize_access_token()
         user_info = token.get('userinfo')
+        
         if not user_info:
             raise Exception("User info not found in token.")
+        
         user_id, email, full_name, avatar_url = user_info['sub'], user_info['email'], user_info.get('name', ''), user_info.get('picture', '')
+        
         if not supabase.table('users').select('id').eq('id', user_id).execute().data:
             supabase.table('users').insert({
                 'id': user_id, 'email': email, 'full_name': full_name, 'avatar_url': avatar_url
             }).execute()
+        
         session.permanent = True
         session['user'] = {
             'id': user_id, 'email': email, 'name': full_name, 'picture': avatar_url
         }
+        
         return redirect(url_for('index'))
     except Exception as e:
         flash(f"Error during Google login: {e}", "error")
         return redirect(url_for('login'))
+
+
 
 @app.route('/logout')
 def logout():
@@ -117,12 +128,15 @@ def logout():
     flash("You have been logged out.", "info")
     return redirect(url_for('login'))
 
+
+
 # --- Main App Routes ---
 @app.route('/')
 @login_required
 def index():
     user_id = session['user']['id']
     greeting = get_greeting(session['user'])
+    
     # ✅ FIX: Add explicit limit and ordering to get all conversations
     try:
         # Try using RPC first
@@ -142,7 +156,7 @@ def index():
             
             if conversations_fallback.data:
                 conversations = conversations_fallback
-                
+    
     except Exception as e:
         print(f"Error fetching conversations: {e}")
         # Ultimate fallback - direct table query
@@ -154,6 +168,8 @@ def index():
             .execute()
     
     return render_template('index.html', user=session['user'], conversations=conversations.data, greeting=greeting)
+
+
 
 @app.route('/conversation/<conversation_id>')
 @login_required
@@ -176,7 +192,7 @@ def load_conversation(conversation_id):
                 .order('updated_at', desc=True)\
                 .limit(100)\
                 .execute()
-                
+    
     except Exception as e:
         print(f"Error fetching conversations: {e}")
         conversations_res = supabase.table('conversations')\
@@ -194,27 +210,43 @@ def load_conversation(conversation_id):
         .execute()
     
     return render_template(
-        'index.html', 
-        user=session['user'], 
+        'index.html',
+        user=session['user'],
         conversations=conversations_res.data,
-        active_conversation_id=conversation_id, 
+        active_conversation_id=conversation_id,
         messages=messages_res.data,
         greeting=greeting
     )
 
+
+
 # --- Function Calling Logic ---
+
 web_search_tool = {
+
     "type": "function",
+
     "function": {
+
         "name": "web_search",
+
         "description": "Search the web for recent and relevant information on a given topic.",
+
         "parameters": {
+
             "type": "object",
+
             "properties": { "query": {"type": "string", "description": "The search query to use."} },
+
             "required": ["query"]
+
         }
+
     }
+
 }
+
+
 
 def perform_web_search(query: str):
     print(f"--- Performing web search for: '{query}' ---")
@@ -249,9 +281,15 @@ def perform_web_search(query: str):
 
 
 
+
+
+
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 
 def resize_image_if_needed(image_data, max_size=(1024, 1024), max_file_size_mb=5):
     """Resize image if it's too large"""
@@ -283,6 +321,8 @@ def resize_image_if_needed(image_data, max_size=(1024, 1024), max_file_size_mb=5
     except Exception as e:
         print(f"Error resizing image: {e}")
         return image_data  # Return original if resize fails
+
+
 
 # ✅ ENHANCED: Multi-image upload route
 @app.route('/upload_images', methods=['POST'])
@@ -330,6 +370,8 @@ def upload_images():
         'success': True,
         'images': processed_images
     })
+
+
 
 # ✅ ENHANCED: Chat route with multi-image support
 @app.route('/chat', methods=['POST'])
@@ -387,7 +429,7 @@ def chat():
         # Build messages array
         messages = [
             {
-                "role": "system", 
+                "role": "system",
                 "content": "You are Srushti, an AI trained by Shreyash shastri. Write like a human, Keep your responses professional but conversational. Don't use em dashes or buzzwords. Avoid sounding like a press release, dont use very high level language, keep it natural and also use emojis to keep it friendly, use high level language only when requested by user. Be Clear Direct and natural, like you're writing to a smart friend. Always Use web_search function to find relevant info. Always keep the user engaged, and Please dont write the search results, its just for you to understand, dont mention it in response no matter what. Tell the user only what they have asked; don't introduce additional topics. Keep your answers concise and strictly relevant. "},
             *history,
             {"role": "user", "content": message_content if len(message_content) > 1 else user_message}
@@ -398,6 +440,8 @@ def chat():
             "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}", "Content-Type": "application/json",
         }
         buffered_reasoning, tool_calls = "", None
+
+
 
         try:
             print("--- AI is thinking... (Combined Streaming Step) ---")
@@ -439,6 +483,7 @@ def chat():
                                     if tool_chunk.function.arguments:
                                         if 'arguments' not in tool_call_chunks[index]['function']: tool_call_chunks[index]['function']['arguments'] = ""
                                         tool_call_chunks[index]['function']['arguments'] += tool_chunk.function.arguments
+
                 else:
                     print("--- Using OpenRouter API for initial call ---")
                     initial_response = requests.post(
@@ -452,7 +497,7 @@ def chat():
                     for line in initial_response.iter_lines():
                         if line and line.decode('utf-8').startswith('data: '):
                             data_str = line.decode('utf-8')[6:]
-                            if data_str == '[DONE]': 
+                            if data_str == '[DONE]':
                                 break
                             try:
                                 chunk_data = json.loads(data_str)
@@ -461,11 +506,11 @@ def chat():
                                 chunk = chunk_data['choices'][0]['delta']
                                 
                                 # Handle reasoning content - buffer it, don't stream immediately
-                                if chunk.get('reasoning'): 
+                                if chunk.get('reasoning'):
                                     buffered_reasoning += chunk.get('reasoning', '')
                                 
                                 # Handle regular content
-                                if chunk.get('content'): 
+                                if chunk.get('content'):
                                     content = chunk.get('content', '')
                                     buffered_content += content
                                     # Stream content immediately if no tool calls are being built
@@ -490,12 +535,14 @@ def chat():
                                 continue
                 # --- End of conditional API call ---
                 
-                if tool_call_chunks: 
+                if tool_call_chunks:
                     tool_calls = list(tool_call_chunks.values())
                 
                 # If we have content but no tool calls, we're done
                 if buffered_content and not tool_calls:
                     full_ai_response = buffered_content
+
+
 
             # Handle tool calls (rest of the tool calling logic remains the same...)
             if tool_calls:
@@ -514,7 +561,7 @@ def chat():
                 print(f"--- AI decided to search for: '{search_query}' ---")
                 
                 sources, tool_result_content = perform_web_search(search_query)
-                if sources: 
+                if sources:
                     yield f"event: sources\ndata: {json.dumps(sources)}\n\n"
                 
                 # Build the assistant message with tool calls
@@ -555,8 +602,8 @@ def chat():
                         "https://openrouter.ai/api/v1/chat/completions",
                         headers=headers,
                         json={
-                            "model": model, 
-                            "messages": messages, 
+                            "model": model,
+                            "messages": messages,
                             "stream": True,
                             "tool_choice": "none",
                             "temperature": 0.7,
@@ -573,7 +620,7 @@ def chat():
                             line_str = line.decode('utf-8')
                             if line_str.startswith('data: '):
                                 data_str = line_str[6:]
-                                if data_str == '[DONE]': 
+                                if data_str == '[DONE]':
                                     if final_reasoning_buffer:
                                         if all_reasoning: all_reasoning += "\n\n---\n\n" + final_reasoning_buffer
                                         else: all_reasoning = final_reasoning_buffer
@@ -595,7 +642,9 @@ def chat():
                 # --- End of conditional final call ---
             
             yield "data: [DONE]\n\n"
-            
+
+           
+
         except Exception as e:
             print(f"An error occurred in stream: {e}")
             traceback.print_exc()
@@ -607,16 +656,16 @@ def chat():
         try:
             if full_ai_response:
                 ai_message_data = {
-                    'conversation_id': conversation_id, 
-                    'sender': 'ai', 
-                    'content': full_ai_response, 
+                    'conversation_id': conversation_id,
+                    'sender': 'ai',
+                    'content': full_ai_response,
                     'sources': sources or None
                 }
                 
                 # ✅ FIXED: Save user message with multiple images support
                 user_message_data = {
-                    'conversation_id': conversation_id, 
-                    'sender': 'user', 
+                    'conversation_id': conversation_id,
+                    'sender': 'user',
                     'content': user_message or ''  # Ensure content is not None
                 }
                 
@@ -658,12 +707,16 @@ def chat():
                     ai_message_data
                 ]).execute()
                 print("--- Conversation saved successfully. ---")
-                
+        
         except Exception as e:
             print(f"Error saving conversation to database: {e}")
             traceback.print_exc()  # This will help debug the exact error
 
     return Response(stream(chat_data, user_id), mimetype='text/event-stream')
 
+
+
 if __name__ == '__main__':
+
     app.run(debug=os.getenv("FLASK_DEBUG", "False") == "True")
+
