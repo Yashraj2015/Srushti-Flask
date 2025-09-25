@@ -1,5 +1,4 @@
 {% extends "layout.html" %}
-
 {% block content %}
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -11,8 +10,8 @@
           <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
         </button>
         <div id="dropdown-menu" class="hidden absolute left-0 mt-2 py-1 w-40 bg-[#141516] rounded-2xl shadow-md z-50">
-          <button class="block w-full px-1 text-left text-sm text-gray-200" data-value="deepseek/deepseek-chat-v3.1:free"><div class="py-2 px-3 hover:bg-[#2A2B2D] rounded-xl">ChatGPT</div></button>
-          <button class="block w-full px-1 text-left text-sm text-gray-200" data-value="mistralai/mistral-small-3.2-24b-instruct:free"><div class="py-2 px-3 hover:bg-[#2A2B2D] rounded-xl">GPT 2o</div></button>
+          <button class="block w-full px-1 text-left text-sm text-gray-200" data-value="deepseek/deepseek-chat-v3.1:free"><div class="py-2 px-3 hover:bg-[#2A2B2D] rounded-xl">Starlight 1</div></button>
+          <button class="block w-full px-1 text-left text-sm text-gray-200" data-value="x-ai/grok-4-fast:free"><div class="py-2 px-3 hover:bg-[#2A2B2D] rounded-xl">Starlight 2 mini</div></button>
           <button class="block w-full px-1 text-left text-sm text-gray-200" data-value="qwen/qwen3-235b-a22b:free"><div class="py-2 px-3 hover:bg-[#2A2B2D] rounded-xl">OpenAI o1</div></button>
         </div>
       </div>
@@ -26,56 +25,61 @@
       <div class="w-full max-w-3xl mx-auto flex flex-col">
         {% if messages %}
           {% for message in messages %}
-            {% if message.sender == 'ai' and message.reasoning %}
-              <details class="reasoning-container w-full mt-2 mb-2 px-2 text-sm font-semibold">
-                <summary class="inline-block text-white cursor-pointer hover:text-white py-2 px-3 rounded-xl">Show Thinking</summary>
-                <div class="reasoning-content pt-2 pl-4 border-l-2 border-gray-600 text-gray-400 prose prose-sm whitespace-pre-wrap">{{ message.reasoning }}</div>
-              </details>
-            {% endif %}
-            <div class="flex w-full  mb-6  {% if message.sender == 'user' %}justify-end{% else %}justify-start{% endif %}">
-              <div class="message-block max-w-full {% if message.sender == 'user' %}self-end flex flex-col items-end{% else %}self-start{% endif %}"
-                   data-message-id="{{ loop.index }}"
-                   {% if message.image_urls %}data-image-urls="{{ message.image_urls | tojson | e }}"{% endif %}
-                   data-raw-text="{{ message.content | e }}">
+            <div class="flex w-full mb-6 {% if message.sender == 'user' %}justify-end{% else %}justify-start{% endif %}"
+                 data-timestamp="{{ message.created_at }}">
+              <div class="flex flex-col {% if message.sender == 'user' %}items-end{% else %}items-start{% endif %}">
 
-                {% if message.sender == 'user' and message.image_urls %}
-                  <div class="flex flex-wrap gap-2 mb-2 justify-end">
-                    {% for image_src in message.image_urls %}
-                      <img src="{{ image_src }}" alt="Message image" class="w-36 h-36 bg-transparent rounded-2xl object-cover">
-                    {% endfor %}
-                  </div>
+                {% if message.sender == 'ai' and message.reasoning %}
+                  <details class="reasoning-container w-full mt-2 mb-2 px-2 text-sm font-semibold">
+                    <summary class="inline-block text-white cursor-pointer hover:text-white py-2 px-3 rounded-xl">Show Thinking</summary>
+                    <div class="reasoning-content pt-2 pl-4 border-l-2 border-gray-600 text-gray-400 prose prose-sm whitespace-pre-wrap">{{ message.reasoning }}</div>
+                  </details>
                 {% endif %}
+                
+                <div class="message-block max-w-full"
+                     data-message-id="{{ loop.index }}"
+                     {% if message.image_urls %}data-image-urls="{{ message.image_urls | tojson | e }}"{% endif %}
+                     data-raw-text="{{ message.content | e }}">
 
-                {% if message.content %}
-                  <div class="px-4 py-2 rounded-2xl break-words message-content
-                                 {% if message.sender == 'user' %} bg-[#333537] text-white mt-2 max-w-lg
+                  {% if message.sender == 'user' and message.image_urls %}
+                    <div class="flex flex-wrap gap-2 mb-2 justify-end">
+                      {% for image_src in message.image_urls %}
+                        <img src="{{ image_src }}" alt="Message image" class="w-36 h-36 bg-transparent rounded-2xl object-cover">
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+
+                  {% if message.content %}
+                    <div class="px-4 py-2 rounded-2xl break-words message-content
+                                 {% if message.sender == 'user' %} bg-[#333537] text-white mt-2 max-w-lg ml-20
                                  {% else %} text-gray-200 prose prose-invert {% endif %}"
                                  data-raw="{{ message.content | e }}">
-                    {{ message.content.replace('\n', '<br>') | safe }}
-                  </div>
-                {% endif %}
+                      {{ message.content.replace('\n', '<br>') | safe }}
+                    </div>
+                  {% endif %}
 
-                {% if message.sender == 'ai' and message.sources %}
-                  <div>
-                    <button class="toggle-sources-btn mt-2 px-4 py-2 bg-transparent border border-1 border-[#3A3F3F] hover:bg-gray-700 text-xs text-white rounded-[0.8rem] flex items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
-                      <p class="font-semibold">Sources</p>
-                    </button>
+                  {% if message.sender == 'ai' and message.sources %}
+                    <div>
+                      <button class="toggle-sources-btn mt-2 px-4 py-2 bg-transparent border border-1 border-[#3A3F3F] hover:bg-[#333537] text-xs text-white rounded-[0.8rem] flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                        <p class="font-semibold">Sources</p>
+                      </button>
 
-                    <div class="sources-container mt-2 hidden">
-                      <div class="flex flex-wrap gap-2 ">
-                        {% for source in message.sources %}
-                          <a href="{{ source.url }}" target="_blank" rel="noopener noreferrer" title="{{ source.title }}" class="flex items-center bg-[#333537] hover:bg-gray-600 px-3 py-2 rounded-[0.8rem] text-xs text-gray-400 ">
-                            <img src="https://www.google.com/s2/favicons?domain={{ source.url.split('//')[1].split('/')[0] }}&sz=16" alt="Favicon" class="w-4 h-4 mr-2 rounded-[0.35rem]" />
-                            <span>
-                              {{ source.url.split('//')[1].split('/')[0] }}
-                            </span>
-                          </a>
-                        {% endfor %}
+                      <div class="sources-container mt-2 hidden">
+                        <div class="flex flex-wrap gap-2 ">
+                          {% for source in message.sources %}
+                            <a href="{{ source.url }}" target="_blank" rel="noopener noreferrer" title="{{ source.title }}" class="flex items-center bg-[#333537] hover:bg-gray-600 px-3 py-2 rounded-[0.8rem] text-xs text-gray-400 ">
+                              <img src="https://www.google.com/s2/favicons?domain={{ source.url.split('//')[1].split('/')[0] }}&sz=16" alt="Favicon" class="w-4 h-4 mr-2 rounded-[0.35rem]" />
+                              <span>
+                                {{ source.url.split('//')[1].split('/')[0] }}
+                              </span>
+                            </a>
+                          {% endfor %}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                {% endif %}
+                  {% endif %}
+                </div>
               </div>
             </div>
           {% endfor %}
@@ -106,6 +110,12 @@
               class="w-[5.4rem] h-9 flex items-center justify-center gap-2 rounded-full bg-[#393D3E] text-gray-400 hover:bg-gray-700 transition-colors mb-3">
               <i class="fa-solid fa-earth-americas text-base leading-none"></i>
               <span class="text-sm leading-none">Search</span>
+          </button>
+
+          <button type="button" id="think-toggle-btn" title="Force Reasoning"
+              class="w-[5.4rem] h-9 flex items-center justify-center gap-2 rounded-full bg-[#393D3E] text-gray-400 hover:bg-gray-700 transition-colors mb-3">
+              <i class="fa-solid fa-brain text-base leading-none"></i>
+              <span class="text-sm leading-none">Think</span>
           </button>
 
           <input type="file" id="image-upload" accept="image/*" multiple class="hidden">

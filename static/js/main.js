@@ -31,7 +31,6 @@ function sortChatMessages() {
     filteredWrappers.forEach(wrapper => container.appendChild(wrapper));
 }
 
-
 document.addEventListener('DOMContentLoaded', () => {
     const chatForm = document.getElementById('chat-form');
     if (!chatForm) return; // Exit if not on the main chat page
@@ -52,13 +51,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const stopBtn = document.getElementById('stop-btn');
     let controller = null;
 
-    const mainContent = document.getElementById('main-content-area');
-    const codeContentEl = document.getElementById('code-content');
-    const copyCodeBtn = document.getElementById('copy-code-btn');
-    const closePanelBtn = document.getElementById('close-panel-btn');
-    const copyBtnText = document.getElementById('copy-btn-text');
+    const codeEditorPanel = document.getElementById('code-editor-panel');
+    const codeEditorContent = document.getElementById('code-editor-content');
+    const codeEditorCloseBtn = document.getElementById('code-editor-close-btn');
+    const codeEditorCopyBtn = document.getElementById('code-editor-copy-btn');
+    const codeEditorDownloadBtn = document.getElementById('code-editor-download-btn');
+    const mainContent = document.getElementById('main-content');
+    const resizeHandle = document.getElementById('resize-handle');
+    const codeEditorUndoBtn = document.getElementById('code-editor-undo-btn');
+    const thinkToggle = document.getElementById('think-toggle');
+    let forceThinking = false;
+    let activeCodeBlock = { pre: null, showButton: null }; // To track the currently edited block
+    let isResizing = false;
     // --- ▲▲▲ END OF Variable Declarations ▲▲▲ ---
-
 
     if (chatContainer) {
         chatContainer.addEventListener('click', (e) => {
@@ -74,6 +79,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error("Code trigger clicked, but no code data found in data attributes.");
                 }
             }
+        });
+    }
+
+    if (thinkToggle) {
+        thinkToggle.addEventListener('click', () => {
+            forceThinking = !forceThinking;
+            thinkToggle.classList.toggle('text-purple-400', forceThinking);
+            thinkToggle.classList.toggle('text-gray-400', !forceThinking);
         });
     }
 
@@ -121,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => autoResize(ta));
         });
     })();
-
 
     let forceWebSearch = false;
     let currentImages = []; // Array to store multiple images
@@ -247,6 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
             ],
             throwOnError: false
         });
+
+        addButtonsToCodeBlocks(element);
     }
 
     function parseAndRenderExistingMessages() {
@@ -273,6 +287,297 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 renderFormattedContent(contentEl, rawText);
             }
+        });
+    }
+
+    function getCodeLanguage(codeElement) {
+        if (!codeElement) return 'plaintext';
+        const languageClass = Array.from(codeElement.classList).find(cls => cls.startsWith('language-'));
+        return languageClass ? languageClass.replace('language-', '') : 'plaintext';
+    }
+
+    // ✅ FIXED: Proper resize function with correct name and implementation
+    
+    
+    // ✅ FIXED: Proper stop resize function
+    function stopResize() {
+        isResizing = false;
+        document.removeEventListener('mousemove', handleResize);
+        document.removeEventListener('mouseup', stopResize);
+        document.body.style.cursor = 'default';
+        document.body.style.userSelect = 'auto';
+    }
+
+    // ✅ FIXED: Start resize function
+    function startResize(e) {
+        isResizing = true;
+        e.preventDefault();
+        document.addEventListener('mousemove', handleResize);
+        document.addEventListener('mouseup', stopResize);
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+    }
+
+    let originalCodeContent = ""; // Store the original AI-provided code
+    let currentEditedCode = ""; // Store the current edited version
+    let codeEditorTextarea = null; // Reference to the textarea element
+
+    function openCodeEditorPanel(preElement) {
+        if (!preElement || !codeEditorPanel || !mainContent) return;
+    
+        // Restore any previously hidden code block
+        if (activeCodeBlock.pre && activeCodeBlock.showButton) {
+            activeCodeBlock.pre.style.display = 'block';
+            if (activeCodeBlock.showButton.parentNode) activeCodeBlock.showButton.remove();
+        }
+    
+        const codeElement = preElement.querySelector('code');
+        const codeText = codeElement.innerText;
+        const language = getCodeLanguage(codeElement);
+        
+        // Store original content for undo functionality
+        originalCodeContent = codeText;
+        
+        // Check if we have saved edited content for this code block
+        const codeBlockId = generateCodeBlockId(preElement);
+        const savedContent = localStorage.getItem(`edited_code_${codeBlockId}`);
+        currentEditedCode = savedContent || codeText;
+        
+        // Clear existing language classes
+        const classes = Array.from(codeEditorContent.classList);
+        for (const cls of classes) {
+            if (cls.startsWith('language-')) codeEditorContent.classList.remove(cls);
+        }
+        codeEditorContent.classList.add(`language-${language}`);
+        
+        // Replace the read-only <code> element with an editable <textarea>
+        setupEditableCodeEditor(currentEditedCode, language, codeBlockId);
+        
+        // Show the panel
+        codeEditorPanel.style.display = 'flex';
+        codeEditorPanel.classList.add('show');
+    
+        // Hide the original code block and show replacement button
+        preElement.style.display = 'none';
+        const showButton = document.createElement('button');
+        showButton.className = 'show-editor-button';
+        showButton.innerHTML = `<i class="fa-regular fa-file"></i> Opened in Canvas`;
+        showButton.onclick = () => openCodeEditorPanel(preElement);
+        preElement.parentNode.insertBefore(showButton, preElement);
+    
+        activeCodeBlock = { pre: preElement, showButton: showButton };
+    }
+    
+    function generateCodeBlockId(preElement) {
+        // Create a simple hash based on the code content and position
+        const codeText = preElement.querySelector('code').innerText;
+        const hash = codeText.split('').reduce((a, b) => {
+            a = ((a << 5) - a) + b.charCodeAt(0);
+            return a & a;
+        }, 0);
+        return Math.abs(hash).toString();
+    }
+
+    function setupEditableCodeEditor(content, language, codeBlockId) {
+        const wrapper = document.getElementById('code-editor-content-wrapper');
+        
+        // Clear the wrapper and create a textarea instead of pre/code
+        wrapper.innerHTML = '';
+        
+        // Store language in wrapper for later reference
+        wrapper.dataset.language = language;
+        
+        codeEditorTextarea = document.createElement('textarea');
+        codeEditorTextarea.id = 'code-editor-textarea';
+        codeEditorTextarea.value = content;
+        codeEditorTextarea.className = `w-full h-full bg-transparent text-gray-300 resize-none outline-none p-4 font-mono text-sm leading-relaxed`;
+        codeEditorTextarea.style.minHeight = '100%';
+        codeEditorTextarea.setAttribute('spellcheck', 'false');
+        
+        // Add input event listener to save changes automatically
+        codeEditorTextarea.addEventListener('input', () => {
+            currentEditedCode = codeEditorTextarea.value;
+            localStorage.setItem(`edited_code_${codeBlockId}`, currentEditedCode);
+            
+            // Update the undo button state
+            updateUndoButtonState();
+        });
+        
+        wrapper.appendChild(codeEditorTextarea);
+        
+        // Focus the textarea and update undo button state
+        setTimeout(() => {
+            codeEditorTextarea.focus();
+            updateUndoButtonState(); // Initialize undo button state
+        }, 100);
+    }
+    
+    function updateUndoButtonState() {
+        const undoBtn = document.getElementById('code-editor-undo-btn');
+        if (undoBtn) {
+            // Enable undo if current content differs from original
+            const hasChanges = currentEditedCode !== originalCodeContent;
+            undoBtn.disabled = !hasChanges;
+            undoBtn.style.opacity = hasChanges ? '1' : '0.5';
+        }
+    }
+    
+    // Update your existing closeCodeEditorPanel function
+    function closeCodeEditorPanel() {
+        if (!codeEditorPanel || !mainContent) return;
+    
+        // Hide the panel
+        codeEditorPanel.style.display = 'none';
+        codeEditorPanel.classList.remove('show');
+    
+        // Restore the original code block
+        if (activeCodeBlock.pre && activeCodeBlock.showButton) {
+            activeCodeBlock.pre.style.display = 'block';
+            if (activeCodeBlock.showButton.parentNode) {
+                activeCodeBlock.showButton.remove();
+            }
+        }
+        
+        // Clear references
+        activeCodeBlock = { pre: null, showButton: null };
+        codeEditorTextarea = null;
+    }
+    
+    function handleResize(e) {
+        if (!isResizing || !codeEditorPanel) return;
+        
+        // ✅ FIXED: Better resize calculation
+        const mainContainer = document.getElementById('main-container');
+        if (!mainContainer) return;
+        
+        const containerRect = mainContainer.getBoundingClientRect();
+        const newWidth = containerRect.right - e.clientX;
+        const maxWidth = containerRect.width * 0.8; // Max 80% of container
+        const minWidth = 300; // Minimum width
+    
+        // ✅ FIXED: Apply constraints and update width
+        if (newWidth >= minWidth && newWidth <= maxWidth) {
+            codeEditorPanel.style.width = newWidth + 'px';
+        }
+    }
+    
+    function stopResize() {
+        isResizing = false;
+        document.removeEventListener('mousemove', handleResize);
+        document.removeEventListener('mouseup', stopResize);
+        document.body.classList.remove('resizing');
+    }
+    
+    function startResize(e) {
+        isResizing = true;
+        e.preventDefault();
+        e.stopPropagation();
+        
+        document.addEventListener('mousemove', handleResize);
+        document.addEventListener('mouseup', stopResize);
+        document.body.classList.add('resizing');
+    }
+    
+    // ✅ FIXED: Better window resize handling
+    window.addEventListener('resize', () => {
+        if (codeEditorPanel && codeEditorPanel.style.display === 'flex') {
+            const mainContainer = document.getElementById('main-container');
+            if (!mainContainer) return;
+            
+            const currentWidth = parseInt(codeEditorPanel.style.width) || 600;
+            const containerWidth = mainContainer.offsetWidth;
+            const maxWidth = containerWidth * 0.8;
+            const minWidth = 300;
+            
+            // Ensure the panel width stays within bounds
+            const newWidth = Math.min(Math.max(currentWidth, minWidth), maxWidth);
+            if (newWidth !== currentWidth) {
+                codeEditorPanel.style.width = newWidth + 'px';
+            }
+        }
+    });
+    
+    // ✅ FIXED: Better escape key handling
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && codeEditorPanel && codeEditorPanel.style.display === 'flex') {
+            closeCodeEditorPanel();
+        }
+    });
+
+    function addButtonsToCodeBlocks(parentElement) {
+        if (!parentElement) return;
+    
+        const codeBlocks = parentElement.querySelectorAll('pre');
+        
+        codeBlocks.forEach(pre => {
+            // Avoid adding buttons multiple times
+            if (pre.querySelector('.code-block-buttons')) {
+                return;
+            }
+    
+            const codeElement = pre.querySelector('code');
+            if (!codeElement) return;
+    
+            // Add language name display
+            const language = getCodeLanguage(codeElement);
+            const langTag = document.createElement('span');
+            langTag.className = 'code-language-tag';
+            langTag.textContent = language;
+            pre.appendChild(langTag);
+    
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'code-block-buttons';
+    
+            // 1. Copy Button 📋
+            const copyButton = document.createElement('button');
+            copyButton.innerHTML = '<i class="far fa-copy"></i>';
+            copyButton.title = 'Copy code';
+            copyButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(codeElement.innerText).then(() => {
+                    copyButton.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+                    setTimeout(() => {
+                        copyButton.innerHTML = '<i class="far fa-copy"></i>';
+                    }, 2000);
+                });
+            });
+    
+            // 2. Edit Button ✏️ (Opens side panel)
+            const editButton = document.createElement('button');
+            editButton.innerHTML = '<i class="far fa-edit"></i>';
+            editButton.title = 'Edit in panel';
+            editButton.addEventListener('click', () => {
+                openCodeEditorPanel(pre);
+            });
+    
+            // 3. Download Button 💾
+            const downloadButton = document.createElement('button');
+            downloadButton.innerHTML = '<i class="fas fa-download"></i>';
+            downloadButton.title = 'Download file';
+            downloadButton.addEventListener('click', () => {
+                const codeText = codeElement.innerText;
+                const extensionMap = {
+                    'javascript': 'js', 'python': 'py', 'java': 'java', 'c': 'c', 'cpp': 'cpp', 'csharp': 'cs', 
+                    'html': 'html', 'css': 'css', 'ruby': 'rb', 'go': 'go', 'rust': 'rs', 'php': 'php', 
+                    'shell': 'sh', 'sql': 'sql', 'json': 'json', 'yaml': 'yml', 'markdown': 'md', 'xml': 'xml', 'typescript': 'ts'
+                };
+                const fileExtension = extensionMap[language] || 'txt';
+                const filename = `Starlight-code.${fileExtension}`;
+                const blob = new Blob([codeText], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+    
+            buttonContainer.appendChild(copyButton);
+            buttonContainer.appendChild(editButton);
+            buttonContainer.appendChild(downloadButton);
+            
+            pre.appendChild(buttonContainer);
         });
     }
 
@@ -327,6 +632,101 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => errorDiv.remove(), 5000);
     }
 
+    // ✅ FIXED: Add event listeners for code editor panel functionality
+    if (codeEditorCloseBtn) {
+        codeEditorCloseBtn.addEventListener('click', closeCodeEditorPanel);
+    }
+
+    if (codeEditorCopyBtn) {
+        codeEditorCopyBtn.addEventListener('click', () => {
+            const textToCopy = codeEditorTextarea ? codeEditorTextarea.value : (codeEditorContent ? codeEditorContent.textContent : '');
+            if (textToCopy) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    codeEditorCopyBtn.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+                    setTimeout(() => {
+                        codeEditorCopyBtn.innerHTML = '<i class="far fa-copy"></i>';
+                    }, 2000);
+                });
+            }
+        });
+    }
+    
+    // FIXED: Updated download button to work with textarea
+    if (codeEditorDownloadBtn) {
+        codeEditorDownloadBtn.addEventListener('click', () => {
+            const codeText = codeEditorTextarea ? codeEditorTextarea.value : (codeEditorContent ? codeEditorContent.textContent : '');
+            if (!codeText) return;
+            
+            // Get language from the textarea or content element
+            let language = 'plaintext';
+            if (codeEditorTextarea) {
+                // Try to get language from the wrapper or stored value
+                const wrapper = codeEditorTextarea.closest('#code-editor-content-wrapper');
+                if (wrapper && wrapper.dataset.language) {
+                    language = wrapper.dataset.language;
+                }
+            } else if (codeEditorContent) {
+                language = getCodeLanguage(codeEditorContent);
+            }
+            
+            const extensionMap = {
+                'javascript': 'js', 'python': 'py', 'java': 'java', 'c': 'c', 'cpp': 'cpp', 'csharp': 'cs',
+                'html': 'html', 'css': 'css', 'ruby': 'rb', 'go': 'go', 'rust': 'rs', 'php': 'php',
+                'shell': 'sh', 'sql': 'sql', 'json': 'json', 'yaml': 'yml', 'markdown': 'md', 'xml': 'xml', 'typescript': 'ts'
+            };
+            const fileExtension = extensionMap[language] || 'txt';
+            const filename = `code.${fileExtension}`;
+            const blob = new Blob([codeText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    }
+    
+    // FIXED: Add undo button event listener (moved outside of nested DOMContentLoaded)
+    if (codeEditorUndoBtn) {
+        codeEditorUndoBtn.addEventListener('click', () => {
+            console.log('Undo button clicked'); // Debug log
+            if (codeEditorTextarea && originalCodeContent) {
+                console.log('Reverting to original content:', originalCodeContent); // Debug log
+                codeEditorTextarea.value = originalCodeContent;
+                currentEditedCode = originalCodeContent;
+                
+                // Remove the saved edited version
+                if (activeCodeBlock.pre) {
+                    const codeBlockId = generateCodeBlockId(activeCodeBlock.pre);
+                    localStorage.removeItem(`edited_code_${codeBlockId}`);
+                    console.log('Removed saved content for:', codeBlockId); // Debug log
+                }
+                
+                updateUndoButtonState();
+            } else {
+                console.log('Undo failed - textarea or original content missing'); // Debug log
+            }
+        });
+    }
+
+    function cleanupOldSavedCodes() {
+        const keys = Object.keys(localStorage);
+        const codeKeys = keys.filter(key => key.startsWith('edited_code_'));
+        
+        // Keep only the last 50 edited codes to prevent localStorage bloat
+        if (codeKeys.length > 50) {
+            const oldKeys = codeKeys.slice(0, codeKeys.length - 50);
+            oldKeys.forEach(key => localStorage.removeItem(key));
+        }
+    }
+
+    // ✅ FIXED: Add resize handle event listener
+    if (resizeHandle) {
+        resizeHandle.addEventListener('mousedown', startResize);
+    }
+
     chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const message = messageInput.value.trim();
@@ -357,6 +757,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 conversation_id: conversationId,
                 model: window.getSelectedModel ? window.getSelectedModel() : "z-ai/glm-4.5-air:free",
                 force_web_search: forceWebSearch,
+                force_thinking: forceThinking, // Add this line
             };
             if (imagesToSend.length > 0) {
                 requestPayload.images_data = imagesToSend;
@@ -397,9 +798,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         appendSources(aiMessageElement, data);
                     } else if (event.startsWith('event: reasoning')) {
                         const data = JSON.parse(event.split('\n')[1].substring(6));
-                        combinedReasoningSSE = combinedReasoningSSE ? `${combinedReasoningSSE}\n\n---\n\n${data}` : data;
+                        combinedReasoningSSE = combinedReasoningSSE ? `${combinedReasoningSSE}${data}` : data;  // Changed += to direct concatenation
                         updateReasoning(aiMessageElement, combinedReasoningSSE);
-                    // ⭐️ START: HANDLE THE NEW CODE PANEL EVENT
                     } else if (event.startsWith('data: ')) {
                         const data = event.substring(6);
                         if (data === '[DONE]') {
@@ -487,10 +887,9 @@ document.addEventListener('DOMContentLoaded', () => {
             messageBlock.appendChild(imageContainer);
         }
         
-        // ⭐️ ADDED: For AI messages, create a dedicated container for tool UI (like buttons)
         if (sender === 'ai') {
             const toolUiContainer = document.createElement('div');
-            toolUiContainer.className = 'tool-ui-container mb-1 ml-4'; // Margin bottom to space it from text
+            toolUiContainer.className = 'tool-ui-container mb-1 ml-4';
             messageBlock.appendChild(toolUiContainer);
         }
     
@@ -523,7 +922,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!sources || sources.length === 0) return;
         const wrapper = document.createElement('div');
         const button = document.createElement('button');
-        button.className = 'toggle-sources-btn mt-2 px-4 py-2 bg-transparent border border-1 hover:bg-gray-700 text-xs text-white rounded-xl flex items-center gap-2';
+        button.className = 'toggle-sources-btn mt-2 px-4 py-2 bg-transparent border border-1 hover:bg-[#333537] text-xs text-white rounded-xl flex items-center gap-2';
         button.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
             Sources
@@ -642,6 +1041,42 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    if (codeEditorPanel) {
+        codeEditorCloseBtn.addEventListener('click', closeCodeEditorPanel);
+
+        codeEditorCopyBtn.addEventListener('click', () => {
+            if (!codeEditorContent) return;
+            navigator.clipboard.writeText(codeEditorContent.textContent).then(() => {
+                codeEditorCopyBtn.innerHTML = '<i class="fas fa-check text-green-400"></i>';
+                setTimeout(() => {
+                    codeEditorCopyBtn.innerHTML = '<i class="far fa-copy"></i>';
+                }, 2000);
+            });
+        });
+
+        codeEditorDownloadBtn.addEventListener('click', () => {
+            if (!codeEditorContent) return;
+            const codeText = codeEditorContent.textContent;
+            const language = getCodeLanguage(codeEditorContent);
+            const extensionMap = {
+                'javascript': 'js', 'python': 'py', 'java': 'java', 'c': 'c', 'cpp': 'cpp', 'csharp': 'cs',
+                'html': 'html', 'css': 'css', 'ruby': 'rb', 'go': 'go', 'rust': 'rs', 'php': 'php',
+                'shell': 'sh', 'sql': 'sql', 'json': 'json', 'yaml': 'yml', 'markdown': 'md', 'xml': 'xml', 'typescript': 'ts'
+            };
+            const fileExtension = extensionMap[language] || 'txt';
+            const filename = `code.${fileExtension}`;
+            const blob = new Blob([codeText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    }
+
     function updateUploadButtonState(modelId) {
         const imageUploadBtn = document.getElementById('image-upload-btn');
         const gpt2oModelId = 'mistralai/mistral-small-3.2-24b-instruct:free';
@@ -657,28 +1092,71 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    console.log('=== DROPDOWN DEBUG INFO ===');
+    // const dropdownBtn = document.getElementById("dropdown-btn");
+    // const dropdownMenu = document.getElementById("dropdown-menu");
+    // const dropdownLabel = document.getElementById("dropdown-label");
+
+    console.log('Dropdown Button:', dropdownBtn);
+    console.log('Dropdown Menu:', dropdownMenu);
+    console.log('Dropdown Label:', dropdownLabel);
+
     if (dropdownBtn && dropdownMenu && dropdownLabel) {
-        let selectedModel = localStorage.getItem("selectedModel") || "mistralai/mistral-small-3.2-24b-instruct:free";
-        let selectedLabel = localStorage.getItem("selectedLabel") || "GPT 2o";
-        dropdownLabel.textContent = selectedLabel;
-        updateUploadButtonState(selectedModel);
-
-        dropdownBtn.addEventListener("click", (e) => { e.stopPropagation(); dropdownMenu.classList.toggle("hidden"); });
-
-        dropdownMenu.querySelectorAll("button").forEach(btn => {
-            btn.addEventListener("click", () => {
-                selectedModel = btn.getAttribute("data-value");
-                selectedLabel = btn.innerText.trim();
+        console.log('All dropdown elements found!');
+        
+        // Test click event
+        dropdownBtn.addEventListener('click', (e) => {
+            console.log('Dropdown button clicked!');
+            e.stopPropagation();
+            dropdownMenu.classList.toggle("hidden");
+            console.log('Menu hidden class:', dropdownMenu.classList.contains('hidden'));
+        });
+        
+        // Test menu options
+        const menuButtons = dropdownMenu.querySelectorAll("button");
+        console.log('Found menu buttons:', menuButtons.length);
+        
+        menuButtons.forEach((btn, index) => {
+            console.log(`Button ${index}:`, btn.getAttribute("data-value"), btn.innerText.trim());
+            btn.addEventListener("click", (e) => {
+                console.log('Menu option clicked:', btn.getAttribute("data-value"));
+                const selectedModel = btn.getAttribute("data-value");
+                const selectedLabel = btn.innerText.trim();
                 dropdownLabel.textContent = selectedLabel;
                 dropdownMenu.classList.add("hidden");
                 localStorage.setItem("selectedModel", selectedModel);
                 localStorage.setItem("selectedLabel", selectedLabel);
-                updateUploadButtonState(selectedModel);
+                console.log('Model updated to:', selectedModel);
             });
         });
-        document.addEventListener("click", () => dropdownMenu.classList.add("hidden"));
-        window.getSelectedModel = () => selectedModel;
+        
+        // Close dropdown when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.add("hidden");
+            }
+        });
+        
+        // Load saved model
+        let selectedModel = localStorage.getItem("selectedModel") || "x-ai/grok-4-fast:free";
+        let selectedLabel = localStorage.getItem("selectedLabel") || "GPT 2o";
+        dropdownLabel.textContent = selectedLabel;
+        console.log('Loaded saved model:', selectedModel, selectedLabel);
+        
+        // Make getSelectedModel function available globally
+        window.getSelectedModel = () => {
+            console.log('getSelectedModel called, returning:', selectedModel);
+            return selectedModel;
+        };
+        
+    } else {
+        console.error('DROPDOWN SETUP FAILED - Missing elements:');
+        if (!dropdownBtn) console.error('- dropdown-btn not found');
+        if (!dropdownMenu) console.error('- dropdown-menu not found');  
+        if (!dropdownLabel) console.error('- dropdown-label not found');
     }
+
+    console.log('=== END DROPDOWN DEBUG ===');
 
     document.querySelectorAll('#sidebar nav a').forEach(link => {
         link.addEventListener('click', () => {

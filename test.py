@@ -23,6 +23,7 @@ user_prompt = "hi"
 payload = {
     "model": "deepseek/deepseek-chat-v3.1:free",
     "messages": [{"role": "user", "content": user_prompt}],
+    "reasoning": {"enabled": True}
 }
 
 try:
@@ -30,7 +31,7 @@ try:
     response = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
         headers=headers,
-        json=payload
+        json=payload,
     )
 
     # Check if the request was successful (HTTP status code 200)

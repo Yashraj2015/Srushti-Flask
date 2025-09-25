@@ -386,6 +386,18 @@ def chat():
         conversation_id = data.get('conversation_id')
         model = data.get('model', "openai/gpt-oss-120b")
         force_web_search = data.get('force_web_search', False)
+        force_thinking = data.get('force_thinking', False)
+
+        HYBRID_REASONING_MODELS = [
+            "deepseek/deepseek-chat-v3.1:free",
+            "x-ai/grok-4-fast:free",
+            "anthropic/claude-3.5-sonnet", 
+            "deepseek/deepseek-r1-lite-preview",
+            # Add other hybrid reasoning models here
+        ]
+
+        is_reasoning_model = any(model_name in model for model_name in HYBRID_REASONING_MODELS)
+        print(f"🧠 Model: {model}, Is reasoning model: {is_reasoning_model}, Force thinking: {force_thinking}")
         
         # --- ADDED: Check if the selected model is from Groq ---
         is_groq_model = model == "openai/gpt-oss-120b"
@@ -452,6 +464,30 @@ def chat():
                 # ✅ MODIFIED: Only use tools if no images are present (many vision models don't support tools)
                 tools_param = [web_search_tool] if not images_data else []
                 buffered_content, tool_call_chunks = "", {}
+
+                final_api_payload = {
+                    "model": model,
+                    "messages": messages,
+                    "stream": True,
+                    "tool_choice": "none",
+                    "temperature": 0.7,
+                    "max_tokens": 2000
+                }
+
+
+                # Add tools only if no images and not a reasoning model
+                if not images_data and not is_reasoning_model:
+                    final_api_payload["tools"] = tools_param
+
+                if is_reasoning_model:
+                    if force_thinking:
+                        final_api_payload["reasoning"] = {"max_tokens": 2000}
+                        print("🧠 Added FORCED reasoning with 2000 tokens")
+                    else:
+                        final_api_payload["reasoning"] = {"max_tokens": 1000}
+                        print("🧠 Added optional reasoning with 1000 tokens")
+                    print(f"🧠 Final API payload reasoning: {final_api_payload.get('reasoning')}")
+
                 
                 # --- MODIFIED: Use Groq client for the reasoning model ---
                 if is_groq_model:
@@ -489,7 +525,7 @@ def chat():
                     initial_response = requests.post(
                         "https://openrouter.ai/api/v1/chat/completions",
                         headers=headers,
-                        json={"model": model, "messages": messages, "tools": tools_param, "stream": True},
+                        json=final_api_payload,
                         stream=True,
                     )
                     initial_response.raise_for_status()
@@ -506,8 +542,14 @@ def chat():
                                 chunk = chunk_data['choices'][0]['delta']
                                 
                                 # Handle reasoning content - buffer it, don't stream immediately
+                                # Add this right after handling reasoning in the streaming loop:
                                 if chunk.get('reasoning'):
-                                    buffered_reasoning += chunk.get('reasoning', '')
+                                    reasoning_chunk = chunk.get('reasoning', '')
+                                    buffered_reasoning += reasoning_chunk
+                                    print(f"🧠 Received reasoning chunk: {reasoning_chunk[:100]}...")  # Debug print
+                                    
+                                    # Send reasoning chunk immediately to UI
+                                    yield f"event: reasoning\ndata: {json.dumps(reasoning_chunk)}\n\n"
                                 
                                 # Handle regular content
                                 if chunk.get('content'):
@@ -601,14 +643,7 @@ def chat():
                     final_response = requests.post(
                         "https://openrouter.ai/api/v1/chat/completions",
                         headers=headers,
-                        json={
-                            "model": model,
-                            "messages": messages,
-                            "stream": True,
-                            "tool_choice": "none",
-                            "temperature": 0.7,
-                            "max_tokens": 2000
-                        },
+                        json=final_api_payload,
                         stream=True,
                     )
                     final_response.raise_for_status()
@@ -622,20 +657,29 @@ def chat():
                                 data_str = line_str[6:]
                                 if data_str == '[DONE]':
                                     if final_reasoning_buffer:
-                                        if all_reasoning: all_reasoning += "\n\n---\n\n" + final_reasoning_buffer
-                                        else: all_reasoning = final_reasoning_buffer
+                                        if all_reasoning: 
+                                            all_reasoning += "\n\n---\n\n" + final_reasoning_buffer
+                                        else: 
+                                            all_reasoning = final_reasoning_buffer
                                         yield f"event: reasoning\ndata: {json.dumps(final_reasoning_buffer)}\n\n"
+                                        print(f"🧠 Sent final reasoning to UI: {final_reasoning_buffer[:100]}...")
                                     break
                                 try:
                                     chunk_data = json.loads(data_str)
-                                    if 'choices' not in chunk_data or not chunk_data['choices']: continue
+                                    if 'choices' not in chunk_data or not chunk_data['choices']: 
+                                        continue
                                     delta = chunk_data['choices'][0]['delta']
                                     content = delta.get('content')
                                     reasoning = delta.get('reasoning')
-                                    if reasoning: final_reasoning_buffer += reasoning
+                                    
+                                    if reasoning: 
+                                        final_reasoning_buffer += reasoning
+                                        print(f"🧠 Final reasoning chunk: {reasoning[:50]}...")
+                                    
                                     if content:
                                         full_ai_response += content
                                         yield f"data: {json.dumps(content)}\n\n"
+                                        
                                 except (json.JSONDecodeError, KeyError, IndexError) as e:
                                     print(f"Error parsing final response chunk: {e}")
                                     continue
